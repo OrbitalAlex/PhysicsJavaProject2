@@ -2,6 +2,7 @@ package oajava.physicsgame;
 
 import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import oajava.util.glfw.DefaultGLFW;
 import oajava.util.glfw.GameController;
@@ -28,7 +29,7 @@ public class ScreenIO implements GameController {
 
 	@Override
 	public void renderElements() {
-		
+		PhysicsGame.terrain.render();
 		renderProjectiles();
 		
 	}
@@ -37,6 +38,7 @@ public class ScreenIO implements GameController {
 		ProjectileShader.shader.bind();
 		ProjectileShader.shader.setAspectRatio(DefaultGLFW.width, DefaultGLFW.height);
 		ProjectileShader.shader.setSize(new Vector2f(0.5f, 0.5f));
+		GL30.glBindVertexArray(0);
 		GL11.glBegin(GL11.GL_POINTS);
 		
 			for (Projectile p : PhysicsGame.projectiles) {
