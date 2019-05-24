@@ -43,8 +43,8 @@ public class TerrainShader extends Shader {
 		u_aspect = getUniform("aspect");
 	}
 	
-	public void setAspectRatio(int w, int h) {
-		setUniform(u_aspect, w*1f/h);
+	public void setAspectRatio(int w, int h, int i, int j) {
+		setUniform(u_aspect, w*i*1f/h/j);
 	}
 	
 }

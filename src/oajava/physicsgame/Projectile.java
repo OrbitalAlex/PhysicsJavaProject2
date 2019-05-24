@@ -21,7 +21,7 @@ public class Projectile implements Serializable {
 		this.constantAcceleration = constantAcceleration;
 		this.airResistance = airResistance;
 		this.velocity = velocity;
-		this.initialTime = PhysicsGame.time_seocnds;
+		this.initialTime = PhysicsGame.time_seconds;
 	}
 	
 	public void move() {

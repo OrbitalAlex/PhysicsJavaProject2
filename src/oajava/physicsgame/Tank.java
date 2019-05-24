@@ -1,5 +1,7 @@
 package oajava.physicsgame;
 
+import java.io.Serializable;
+
 import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -10,22 +12,27 @@ import oajava.util.gl.Texture;
 import oajava.util.gl.gui.GUI;
 import oajava.util.glfw.DefaultGLFW;
 
-public class Tank {
+public class Tank implements Serializable {
 	
+	private static final long serialVersionUID = 5089741754986302396L;
+
 	public static final Vector2f offset_cannon_wheel = new Vector2f(), projectileInitialPos = new Vector2f();
 	
-	public static final Texture body = null; // for now
+	public static final Texture body = new Texture(Util.glReadImage(Tank.class.getResourceAsStream("/assets/tank_body.bmp")));
 	public static final Texture wheel = new Texture(Util.glReadImage(Tank.class.getResourceAsStream("/assets/tank_wheel.png")));
 	
 	public Vector2f pos;
-	public Texture texture;
 	public Angle angle;
 	public int side;// NET_SERVER_SIDE or NET_CLIENT_SIDE
+	public byte health = 5;
 	
-	
-	
+	public Tank(Vector2f pos, int side) {
+		super();
+		this.pos = pos;
+		this.side = side;
+	}
+
 	public void render() {
-		texture.bind(0);
 		GL30.glBindVertexArray(GUI.vao);
 		
 		TankShader.shader.bind();
@@ -48,5 +55,13 @@ public class Tank {
 	public void launchProjectile() {
 		
 	}
+	
+	public void mouseMoved(Vector2f new_pos) {
+		Vector2f diff = new_pos.sub(pos, new Vector2f());
+		angle = Angle.angleRad((float) (Math.atan(diff.y / diff.x) + (diff.x < 0 ? Math.PI : 0)));
+		
+	}
+	
+	public static void touch() {} // load static textures
 	
 }
