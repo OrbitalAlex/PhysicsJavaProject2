@@ -20,8 +20,8 @@ public class TankShader extends Shader {
 			+ "out vec2 texturePosition;\r\n"
 			+ "\r\n"
 			+ "void main() {\r\n"
-			+ "	vec2 new_Pos = (pos + offset) * vec2(1, aspect);"
-			+ "	gl_Position = vec4(new_Pos.x * cos_angle - new_Pos.y * sin_angle, new_Pos.y * cos_angle + new_Pos.y * sin_angle, 0, 1);\r\n"
+			+ "	vec2 new_Pos = (pos - vec2(0, 0.5)) * size;"
+			+ "	gl_Position = vec4(new_Pos.x * cos_angle - new_Pos.y * sin_angle + offset.x, (new_Pos.y * cos_angle + new_Pos.x * sin_angle) * aspect + offset.y, 0, 1);\r\n"
 			+ "	texturePosition = vec2(pos.x,1-pos.y);\r\n"
 			+ "}";
 	

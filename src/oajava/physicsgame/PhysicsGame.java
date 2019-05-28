@@ -4,12 +4,14 @@ import static oajava.util.Util.*;
 
 import oajava.physicsgame.net.*;
 
+import java.awt.Font;
 import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
 import oajava.util.Util;
 import oajava.util.Util.NetSocketDisconnected;
+import oajava.util.gl.Texture;
 import oajava.util.glfw.DefaultGLFW;
 
 
@@ -19,7 +21,7 @@ import oajava.util.glfw.DefaultGLFW;
  */
 public class PhysicsGame {
 
-	public static float ZOOM = 50f;
+	public static float ZOOM = 33f;
 	
 	public static final Stack<Projectile> projectiles = new Stack<Projectile>();
 	
@@ -35,6 +37,10 @@ public class PhysicsGame {
 
 	public static int side;
 	public static int turn = Util.NET_SERVER_SIDE;
+	
+	public static final Font font = new Font("Britannic Bold", Font.BOLD, 24);
+	
+	public static Texture angle_texture;
 	
 	private static class Callbacks implements NetSocketDisconnected {
 

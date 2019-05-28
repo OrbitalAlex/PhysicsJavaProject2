@@ -15,8 +15,8 @@ import oajava.util.glfw.DefaultGLFW;
 
 public class Terrain {
 
-	public Vector2f tankPos0 = new Vector2f(-30f, 0f);
-	public Vector2f tankPos1 = new Vector2f(30f, 0f);
+	public Vector2f tankPos0 = new Vector2f(-30f, -11f);
+	public Vector2f tankPos1 = new Vector2f(30f, -25f);
 	
 	private static final int vao;
 	public static final Texture texture = new Texture(Util.glReadImage(Terrain.class.getResourceAsStream("/assets/terrain.bmp"))); // TODO initialize the texture

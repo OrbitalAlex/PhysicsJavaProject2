@@ -1,5 +1,6 @@
 package oajava.physicsgame;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
 import org.joml.Vector2f;
@@ -16,13 +17,13 @@ public class Tank implements Serializable {
 	
 	private static final long serialVersionUID = 5089741754986302396L;
 
-	public static final Vector2f offset_cannon_wheel = new Vector2f(), projectileInitialPos = new Vector2f();
+	public static final Vector2f offset_cannon_wheel = new Vector2f(0.5f, 0f), projectileInitialPos = new Vector2f();
 	
 	public static final Texture body = new Texture(Util.glReadImage(Tank.class.getResourceAsStream("/assets/tank_body.bmp")));
-	public static final Texture wheel = new Texture(Util.glReadImage(Tank.class.getResourceAsStream("/assets/tank_wheel.png")));
+	public static final Texture wheel = new Texture(Util.glApplyTransparentColor(Util.glReadImage(Tank.class.getResourceAsStream("/assets/tank_wheel.png"), BufferedImage.TYPE_INT_ARGB), 0xFFFFFF));
 	
 	public Vector2f pos;
-	public Angle angle;
+	public Angle angle = Angle.angleRad(0);
 	public int side;// NET_SERVER_SIDE or NET_CLIENT_SIDE
 	public byte health = 5;
 	
@@ -34,6 +35,8 @@ public class Tank implements Serializable {
 
 	public void render() {
 		GL30.glBindVertexArray(GUI.vao);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
 		TankShader.shader.bind();
 		TankShader.shader.setAngleRad(0);
@@ -57,9 +60,10 @@ public class Tank implements Serializable {
 	}
 	
 	public void mouseMoved(Vector2f new_pos) {
-		Vector2f diff = new_pos.sub(pos, new Vector2f());
-		angle = Angle.angleRad((float) (Math.atan(diff.y / diff.x) + (diff.x < 0 ? Math.PI : 0)));
-		
+		new_pos.mul(1f, DefaultGLFW.width*1f/DefaultGLFW.height);
+		Vector2f diff = new_pos.sub(pos.mul(1f/PhysicsGame.ZOOM, new Vector2f()), new Vector2f());
+		angle = Angle.angleRad(-(float) (Math.atan(diff.y / diff.x) + (diff.x < 0 ? Math.PI : 0)));
+		System.out.println("angle: " + angle.angDegrees());
 	}
 	
 	public static void touch() {} // load static textures

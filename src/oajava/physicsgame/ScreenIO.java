@@ -3,6 +3,7 @@ package oajava.physicsgame;
 import static oajava.util.Util.*;
 
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -10,6 +11,7 @@ import org.lwjgl.opengl.GL30;
 import oajava.physicsgame.net.PacketNewTurn;
 import oajava.util.Util;
 import oajava.util.gl.Texture;
+import oajava.util.gl.gui.GUI;
 import oajava.util.glfw.DefaultGLFW;
 import oajava.util.glfw.GameController;
 
@@ -64,9 +66,27 @@ public class ScreenIO implements GameController {
 
 	@Override
 	public void renderElements() {
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(false);
 		PhysicsGame.terrain.render();
 //		renderProjectiles();
+		for (Tank t : PhysicsGame.tanks) {
+			if (t != null) {
+				t.render();
+			}
+		}
 		
+		if (PhysicsGame.angle_texture != null) PhysicsGame.angle_texture.free(); // i'm lazy
+		
+//		float texture_height = PhysicsGame.angle_texture.getHeight()/200f;
+//		float texture_width = PhysicsGame.angle_texture.getWidth()/200f;
+		
+		PhysicsGame.angle_texture = Texture.glTexture("Angle: " + ((int) ((360 + (PhysicsGame.tanks[0].side == PhysicsGame.side ? PhysicsGame.tanks[0] : PhysicsGame.tanks[1]).angle.angDegrees()) * 100)) / 100f, PhysicsGame.font, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0, 0, 0, 0.25f));
+		PhysicsGame.angle_texture.bind(0);
+		GUI.shader.bind();
+		GUI.shader.setUniform(GUI.u_pos, new Vector2f());
+		GUI.shader.setUniform(GUI.u_size, new Vector2f(PhysicsGame.angle_texture.getWidth()/600f,PhysicsGame.angle_texture.getHeight()/600f*DefaultGLFW.width*1f/DefaultGLFW.height));
+		GUI.drawQuad();
 	}
 	
 	private void renderProjectiles() {
