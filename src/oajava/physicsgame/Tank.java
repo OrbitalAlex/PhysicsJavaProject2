@@ -7,8 +7,10 @@ import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import oajava.physicsgame.net.PacketProjectileCreated;
 import oajava.util.Util;
 import oajava.util.Util.Angle;
+import oajava.util.Util.NetPacket;
 import oajava.util.gl.Texture;
 import oajava.util.gl.gui.GUI;
 import oajava.util.glfw.DefaultGLFW;
@@ -56,14 +58,17 @@ public class Tank implements Serializable {
 	}
 	
 	public void launchProjectile() {
-		
+		Angle angle = Util.Angle.angleDeg(this.angle.angDegrees()+180f);
+		Projectile projectile = new Projectile(this.pos.add(0, 0, new Vector2f()), new Vector2f(0, -9.8f), new Vector2f(0.75f, 0.268f), new Vector2f((float) (75f*angle.cos()), ((float) (75f*angle.sin()))));
+		PhysicsGame.projectiles.push(projectile);
+		Util.netSendPacket(PhysicsGame.socket, new PacketProjectileCreated(projectile));
 	}
 	
 	public void mouseMoved(Vector2f new_pos) {
 		new_pos.mul(1f, DefaultGLFW.width*1f/DefaultGLFW.height);
 		Vector2f diff = new_pos.sub(pos.mul(1f/PhysicsGame.ZOOM, new Vector2f()), new Vector2f());
 		angle = Angle.angleRad(-(float) (Math.atan(diff.y / diff.x) + (diff.x < 0 ? Math.PI : 0)));
-		System.out.println("angle: " + angle.angDegrees());
+//		System.out.println("angle: " + angle.angDegrees());
 	}
 	
 	public static void touch() {} // load static textures

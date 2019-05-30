@@ -6,6 +6,8 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import oajava.physicsgame.net.PacketNewTurn;
@@ -18,6 +20,7 @@ import oajava.util.glfw.GameController;
 public class ScreenIO implements GameController {
 
 	public static Texture projectile_texture;
+	public static int DummyProjectileVAOIDontCareAbout;
 		
 	@Override
 	public void postOpenGLInit() {
@@ -32,7 +35,18 @@ public class ScreenIO implements GameController {
 		
 //		GL11.glClearColor(126/255f, 194/255f, 1f, 1f);
 		GL11.glClearColor(1f, 0f, 0f, 0f);
+//		
+		DummyProjectileVAOIDontCareAbout = GL30.glGenVertexArrays();
+		GL30.glBindVertexArray(DummyProjectileVAOIDontCareAbout);
 		
+		int buff = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, buff);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, new float[] {-0.5f,-0.5f,-0.5f,0.5f,0.5f,0.5f,0.5f,-0.5f}, GL15.GL_STATIC_DRAW);
+		GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, 0, 0);
+		
+		GL20.glEnableVertexAttribArray(0);
+		
+		GL30.glBindVertexArray(0);
 		
 		projectile_texture = new Texture(glApplyTransparentColor(glReadImage(ScreenIO.class.getResourceAsStream("/assets/projectile.bmp")), 0x0000FF00));
 		
@@ -81,7 +95,9 @@ public class ScreenIO implements GameController {
 //		float texture_height = PhysicsGame.angle_texture.getHeight()/200f;
 //		float texture_width = PhysicsGame.angle_texture.getWidth()/200f;
 		
-		PhysicsGame.angle_texture = Texture.glTexture("Angle: " + ((int) ((360 + (PhysicsGame.tanks[0].side == PhysicsGame.side ? PhysicsGame.tanks[0] : PhysicsGame.tanks[1]).angle.angDegrees()) * 100)) / 100f, PhysicsGame.font, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0, 0, 0, 0.25f));
+		renderProjectiles();
+		
+		PhysicsGame.angle_texture = Texture.glTexture("Angle: " + Util.ioClampi(((int) ((360 + (PhysicsGame.tanks[0].side == PhysicsGame.side ? PhysicsGame.tanks[0] : PhysicsGame.tanks[1]).angle.angDegrees()) * 100)), 0, 36000) / 100f, PhysicsGame.font, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0, 0, 0, 0.25f));
 		PhysicsGame.angle_texture.bind(0);
 		GUI.shader.bind();
 		GUI.shader.setUniform(GUI.u_pos, new Vector2f());
@@ -94,18 +110,17 @@ public class ScreenIO implements GameController {
 		projectile_texture.bind(0);
 		ProjectileShader.shader.setAspectRatio(DefaultGLFW.width, DefaultGLFW.height);
 		ProjectileShader.shader.setSize(new Vector2f(0.5f, 0.5f));
-		GL30.glBindVertexArray(0);
+		GL30.glBindVertexArray(DummyProjectileVAOIDontCareAbout);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_SRC_ALPHA);
-		GL11.glBegin(GL11.GL_POINTS);
 		
 			for (Projectile p : PhysicsGame.projectiles) {
 				ProjectileShader.shader.setAngle(p.getAngle());
 				ProjectileShader.shader.setPosition(p.getPosition(PhysicsGame.time_seconds).mul(1f/PhysicsGame.ZOOM));
-				GL11.glVertex2f(0, 0); // call the shader
+				GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+//				GL11.glVertex2f(0, 0); // call the shader
 			}
 		
-		GL11.glEnd();
 	}
 
 	
@@ -153,6 +168,7 @@ public class ScreenIO implements GameController {
 	
 	@Override
 	public void mousePress(int button) {
+		System.out.println(PhysicsGame.turn + " " + PhysicsGame.side + " " + Util.NET_CLIENT_SIDE + " " + Util.NET_SERVER_SIDE);
 		if (PhysicsGame.turn == PhysicsGame.side) {
 			for (Tank t : PhysicsGame.tanks) {
 				if (t.side == PhysicsGame.side) {
