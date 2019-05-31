@@ -48,7 +48,7 @@ public class ScreenIO implements GameController {
 		
 		GL30.glBindVertexArray(0);
 		
-		projectile_texture = new Texture(glApplyTransparentColor(glReadImage(ScreenIO.class.getResourceAsStream("/assets/projectile.bmp")), 0x0000FF00));
+		projectile_texture = new Texture(glApplyTransparentColor(glReadImage(ScreenIO.class.getResourceAsStream("/assets/projectile.png")), 0x0000FF00));
 		
 		ioSetSyncingStatus(sync_frame, "Loading projectile shader...");
 		ioSetSyncingProgressf(sync_frame, 0.1f);
@@ -112,7 +112,7 @@ public class ScreenIO implements GameController {
 		ProjectileShader.shader.setSize(new Vector2f(0.5f, 0.5f));
 		GL30.glBindVertexArray(DummyProjectileVAOIDontCareAbout);
 		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_SRC_ALPHA);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
 			for (Projectile p : PhysicsGame.projectiles) {
 				ProjectileShader.shader.setAngle(p.getAngle());

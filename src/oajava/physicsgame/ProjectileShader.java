@@ -17,11 +17,12 @@ public class ProjectileShader extends Shader {
 			+ "\r\n"
 			+ "uniform vec2 pos;\r\n"
 			+ "uniform float aspect;\r\n"
+			+ "uniform float angle;\r\n"
 			+ "\r\n"
 			+ "out vec2 texturePos;\r\n"
 			+ "\r\n"
 			+ "void main() {\r\n"
-			+ "	gl_Position = vec4((pos + vtx) * vec2(1, aspect), 0, 1);\r\n"
+			+ "	gl_Position = vec4(vec2((vtx.x * cos(angle) - vtx.y * sin(angle)) * .1 + pos.x, (vtx.y * cos(angle) + vtx.x * sin(angle)) * .1 + pos.y) * vec2(1, aspect), 0, 1);\r\n"
 			+ "	texturePos = vtx + vec2(0.5, 0.5);"
 			+ "}";
 	
@@ -81,7 +82,6 @@ public class ProjectileShader extends Shader {
 			+ "\r\n"
 			+ "void main() {\r\n"
 			+ "	gl_FragColor = texture(sampler, texturePos);\r\n"
-			+ "	gl_FragColor = vec4(0, 0, 0, 0.5);"
 			+ "}\r\n";
 	
 	public static final ProjectileShader shader = new ProjectileShader();

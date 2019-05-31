@@ -9,6 +9,8 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
+import org.lwjgl.glfw.GLFW;
+
 import oajava.util.Util;
 import oajava.util.Util.NetSocketDisconnected;
 import oajava.util.gl.Texture;
@@ -53,6 +55,7 @@ public class PhysicsGame {
 	
 	public static void main(String[] args) {			
 		DefaultGLFW.title = "Water Balloon Launching Game by Alexander B and Andrew M";
+		DefaultGLFW.fps = 60;
 		DefaultGLFW.game_controller = new ScreenIO();
 		DefaultGLFW.setupScreenshotThread();
 		DefaultGLFW.runDefaultMainGameLoop();
@@ -77,8 +80,9 @@ public class PhysicsGame {
 			break;
 		case 1:
 			// SERVER
+			GLFW.glfwSetWindowTitle(DefaultGLFW.window, "Water Balloon Launching Game by Alexander B and Andrew M ["+Util.netLocalHost().getHostAddress()+"]");
 			side = Util.NET_SERVER_SIDE;
-			turn = NET_CLIENT_SIDE;
+//			turn = NET_CLIENT_SIDE;
 			socket = Util.netGenSocket(Util.NET_SERVER_SIDE, null, 42046);
 			netSetCallback1(socket, (arg0) -> {
 				netSetCallback0(socket, new Callbacks());

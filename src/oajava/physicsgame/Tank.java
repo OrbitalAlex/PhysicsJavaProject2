@@ -57,9 +57,11 @@ public class Tank implements Serializable {
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 	}
 	
+	public static final float MAG = 32;
+	
 	public void launchProjectile() {
-		Angle angle = Util.Angle.angleDeg(this.angle.angDegrees()+180f);
-		Projectile projectile = new Projectile(this.pos.add(0, 0, new Vector2f()), new Vector2f(0, -9.8f), new Vector2f(0.75f, 0.268f), new Vector2f((float) (75f*angle.cos()), ((float) (75f*angle.sin()))));
+		Angle angle = Util.Angle.angleDeg(this.angle.angDegrees());
+		Projectile projectile = new Projectile(this.pos.add(0, 10, new Vector2f()), new Vector2f(0, -9.8f), new Vector2f(0.75f, 0.268f), new Vector2f((float) (MAG*angle.cos()), ((float) (MAG*angle.sin()))));
 		PhysicsGame.projectiles.push(projectile);
 		Util.netSendPacket(PhysicsGame.socket, new PacketProjectileCreated(projectile));
 	}
