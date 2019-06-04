@@ -100,7 +100,7 @@ public class PhysicsGame {
 
 	public static void removeProjectile(Projectile p) {
 		projectiles.remove(p);
-		
+		// send packet?
 	}
 	
 }

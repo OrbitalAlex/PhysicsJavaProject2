@@ -10,6 +10,8 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import oajava.physicsgame.cl.CLDoer;
+import oajava.physicsgame.cl.CLHost;
 import oajava.physicsgame.net.PacketNewTurn;
 import oajava.util.Util;
 import oajava.util.gl.Texture;
@@ -55,8 +57,12 @@ public class ScreenIO implements GameController {
 		ProjectileShader.shader.getClass(); // trigger
 	
 		ioSetSyncingStatus(sync_frame, "Loading cannon shader and textures...");
-		ioSetSyncingProgressf(sync_frame, 0.6f);
+		ioSetSyncingProgressf(sync_frame, 0.3f);
 		Tank.touch(); // load textures
+		
+		ioSetSyncingStatus(sync_frame, "Loading OpenCL Data...");
+		ioSetSyncingProgressf(sync_frame, 0.6f);
+		CLDoer.init();
 		
 		ioHideSyncingFrame(sync_frame);
 		ioDeleteSyncingFrame(sync_frame);
@@ -80,6 +86,9 @@ public class ScreenIO implements GameController {
 
 	@Override
 	public void renderElements() {
+		CLDoer.fbo.setViewport();
+		CLHost.bind_gl(CLDoer.cl_img);
+		
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthMask(false);
 		PhysicsGame.terrain.render();
@@ -103,6 +112,31 @@ public class ScreenIO implements GameController {
 		GUI.shader.setUniform(GUI.u_pos, new Vector2f());
 		GUI.shader.setUniform(GUI.u_size, new Vector2f(PhysicsGame.angle_texture.getWidth()/600f,PhysicsGame.angle_texture.getHeight()/600f*DefaultGLFW.width*1f/DefaultGLFW.height));
 		GUI.drawQuad();
+		
+		CLDoer.fbo.resetViewport(CLDoer.texture.getWidth(), CLDoer.texture.getHeight());
+		
+		GL30.glBindVertexArray(GUI.vao);
+		ImageShader.shader.bind();
+		CLDoer.texture.bind(0);
+		
+		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+		
+		Util.thrSleepMs(5);
+		
+		CLHost.bind_cl(CLDoer.cl_img);
+		int count = CLDoer.checkSchool();
+
+		System.out.println("count: " + count);
+		
+		if (count > 0) {
+			System.out.println("remove!");
+			try {
+				PhysicsGame.removeProjectile(PhysicsGame.projectiles.get(0));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	private void renderProjectiles() {

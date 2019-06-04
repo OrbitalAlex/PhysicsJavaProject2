@@ -13,7 +13,7 @@ public class Projectile implements Serializable {
 	public Vector2f airResistance; // a = -bv/m = -cv (c=b/m = data stored in vector)
 	public Vector2f velocity;//keep
 	public float initialTime; 
-	public int windValue = ((int)Math.random() * 12) - 6;
+	public int windValue = ((int)Math.random() * 20) - 10;
 	public float AirResistancex;
 	public float AirResistancey;
 	public float gravity = 9.80665f;
