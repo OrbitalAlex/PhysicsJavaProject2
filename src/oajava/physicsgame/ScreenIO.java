@@ -10,6 +10,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
+import org.lwjgl.opengl.GL33;
 
 import oajava.physicsgame.net.PacketNewTurn;
 import oajava.util.Util;
@@ -102,6 +104,14 @@ public class ScreenIO implements GameController {
 		
 		if (PhysicsGame.angle_texture != null) PhysicsGame.angle_texture.free(); // i'm lazy
 		
+		HeartShader.shader.bind();
+		HeartShader.texture.bind(0);
+		GL30.glBindVertexArray(HeartShader.shader.vao_left);
+		GL31.glDrawArraysInstanced(GL11.GL_QUADS, 0, 4, PhysicsGame.heart.heartCountp1);
+		
+		GL30.glBindVertexArray(HeartShader.shader.vao_right);
+		GL31.glDrawArraysInstanced(GL11.GL_QUADS, 0, 4, PhysicsGame.heart.heartCountp2);
+		
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthMask(true);
 		
@@ -158,14 +168,15 @@ public class ScreenIO implements GameController {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
 			for (Projectile p : PhysicsGame.projectiles.toArray(new Projectile[] {})) {
+				Vector2f pos;
 				query.begin();
 				ProjectileShader.shader.setAngle(p.getAngle());
-				ProjectileShader.shader.setPosition(p.getPosition(PhysicsGame.time_seconds).mul(1f/PhysicsGame.ZOOM));
+				ProjectileShader.shader.setPosition(pos = p.getPosition(PhysicsGame.time_seconds).mul(1f/PhysicsGame.ZOOM));
 				GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 				query.end();
 				GL11.glFinish();
-				System.out.println("passed: " + query.get());
-				if (query.get() < 4000 && PhysicsGame.time_seconds - p.initialTime >= 0.333f) {
+				System.out.println("passed: " + query.get() + " " + pos.y);
+				if (query.get() < 4000 && PhysicsGame.time_seconds - p.initialTime >= 0.333f && pos.y < 0.5f) {
 					PhysicsGame.removeProjectile(p);
 				}
 //				GL11.glVertex2f(0, 0); // call the shader

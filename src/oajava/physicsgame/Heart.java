@@ -14,12 +14,14 @@ public class Heart {
 	{
 		heartCountp1--;
 		Util.netSendPacket(PhysicsGame.socket, new PacketChangeHealth(heartCountp1, heartCountp2));
+		System.out.println("heart down 1");
 	}
 	
 	public void removeheartp2()
 	{
 		heartCountp2--;
 		Util.netSendPacket(PhysicsGame.socket, new PacketChangeHealth(heartCountp1, heartCountp2));
+		System.out.println("heart down 2");
 	}
 
 	public void displayHeart()
