@@ -26,11 +26,11 @@ public class HeartShader extends Shader {
 			+ "\r\n"
 			+ "out vec2 texturePos;\r\n"
 			+ "\r\n"
-			+ "uniform float aspect;\r\n"
+			+ "uniform float aspect = 1;\r\n"
 			+ "\r\n"
 			+ "void main() {\r\n"
 			+ "	texturePos = texturePosIn;\r\n"
-			+ "	gl_Position = vec4((quadPos + vec2(offset, 0)) * vec2(1, aspect), 0, 1);\r\n"
+			+ "	gl_Position = vec4(quadPos.x + offset, quadPos.y, 0, 1);\r\n"
 			+ "}";
 	
 	public static final String FRAGMENT_SOURCE = ""
@@ -44,17 +44,18 @@ public class HeartShader extends Shader {
 			+ "\r\n"
 			+ "void main() {\r\n"
 			+ "	gl_FragColor = texture(sampler, texturePos);\r\n"
+			+ "	if (gl_FragColor.x<190.0/255.0)discard;"
 			+ "}";
 	
 	public static final HeartShader shader = new HeartShader();
 	
 	
 	public final int vao_left, vao_right;
-	
-	public final int u_aspect;
-	
+		
 	private HeartShader() {
 		super(VTX_SOURCE, FRAGMENT_SOURCE);
+		
+		final float aspect = DefaultGLFW.width*1f/DefaultGLFW.height;
 		
 		vao_left = GL30.glGenVertexArrays();
 		vao_right = GL30.glGenVertexArrays();
@@ -64,10 +65,10 @@ public class HeartShader extends Shader {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo_left);
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, new float[] {
 					-1f, 1f,
-					-1f, 1f-SIZE,
-					-1f+SIZE, 1f-SIZE,
+					-1f, 1f-SIZE*aspect,
+					-1f+SIZE, 1f-SIZE*aspect,
 					-1f+SIZE, 1f,
-					SIZE+SPACING, SIZE+SPACING*2, SIZE+SPACING*3,
+					0, SIZE+SPACING*1, SIZE*2+SPACING*2,
 					0f, 0f,
 					0f, 1f,
 					1f, 1f,
@@ -94,10 +95,10 @@ public class HeartShader extends Shader {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo_right);
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, new float[] {
 					1f, 1f,
-					1f, 1f-SIZE,
-					1f-SIZE, 1f-SIZE,
+					1f, 1f-SIZE*aspect,
+					1f-SIZE, 1f-SIZE*aspect,
 					1f-SIZE, 1f,
-					-SIZE-SPACING, -SIZE-SPACING*2,-SIZE-SPACING*3,
+					0, -SIZE-SPACING*1,-SIZE*2-SPACING*2,
 					0f, 0f,
 					0f, 1f,
 					1f, 1f,
@@ -119,13 +120,6 @@ public class HeartShader extends Shader {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
 		
-		u_aspect = getUniform("aspect");
-	}
-	
-	@Override
-	public void bind() {
-		super.bind();
-		setUniform(u_aspect, DefaultGLFW.width*1f/DefaultGLFW.height);
 	}
 	
 
