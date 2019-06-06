@@ -3,6 +3,9 @@ package oajava.physicsgame;
 import java.io.Serializable;
 
 import org.joml.Vector2f;
+import org.joml.Vector2fc;
+
+import oajava.util.Util;
 
 public class Projectile implements Serializable {
 
@@ -46,6 +49,23 @@ public class Projectile implements Serializable {
 		velocity.y -= (gravity - AirResistancey) / 60f;
 		initialPosition.x = position.x;
 		initialPosition.y = position.y;
+		if (position.distance(PhysicsGame.tanks[0].pos) <= 0.05f && PhysicsGame.side == Util.NET_CLIENT_SIDE)
+		{
+			PhysicsGame.removeProjectile(this);
+			//PhysicsGame.tanks[0].removeHeart();
+			//MAKE THE HEART CLASS
+		}
+		
+		if (position.distance(PhysicsGame.tanks[1].pos) <= 0.05f && PhysicsGame.side == Util.NET_SERVER_SIDE)
+		{
+			PhysicsGame.removeProjectile(this);
+			//PhysicsGame.tanks[1].removeHeart();
+		}
+		
+		
+		
+		//PhysicsGame.tanks[0].pos
+		//PhysicsGame.removeProjectile(p);
 		return position; // DO THIS ANDREW!!! maybe use Euler method to approximate velocity when using air resistance??? Just figure it out.
 	}
 	
