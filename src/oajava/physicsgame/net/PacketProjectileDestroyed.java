@@ -12,6 +12,15 @@ public class PacketProjectileDestroyed implements NetPacket {
 	
 	
 	
+	
+	public PacketProjectileDestroyed(float projectileCreationTime) {
+		super();
+		this.projectileCreationTime = projectileCreationTime;
+	}
+
+
+
+
 	@Override
 	public void packetRecieved(int arg0) {
 		for (Projectile p : PhysicsGame.projectiles.toArray(new Projectile[] {})) {

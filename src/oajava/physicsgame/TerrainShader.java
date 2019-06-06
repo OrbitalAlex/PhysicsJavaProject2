@@ -24,13 +24,16 @@ public class TerrainShader extends Shader {
 			+ "#version 330 core\r\n"
 			+ "\r\n"
 			+ "uniform sampler2D sampler;\r\n"
+			+ "uniform sampler2D depth_sampler;\r\n"
 			+ "\r\n"
 			+ "in vec2 texturePosition;\r\n"
 			+ "\r\n"
 			+ "out vec4 gl_FragColor;\r\n"
+			+ "layout (depth_greater) out float gl_FragDepth;\r\n"
 			+ "\r\n"
 			+ "void main() {\r\n"
 			+ "	gl_FragColor = texture(sampler, texturePosition);\r\n"
+			+ "	gl_FragDepth = texture(depth_sampler, texturePosition).x;\r\n"
 			+ "}";
 	
 	public final int u_aspect;
@@ -41,6 +44,7 @@ public class TerrainShader extends Shader {
 		super(VERTEX_SOURCE, FRAGMENT_SOURCE);
 		
 		u_aspect = getUniform("aspect");
+		setUniform(getUniform("depth_sampler"), 1);
 	}
 	
 	public void setAspectRatio(int w, int h, int i, int j) {

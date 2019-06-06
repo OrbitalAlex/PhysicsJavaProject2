@@ -20,7 +20,9 @@ public class Terrain {
 	
 	private static final int vao;
 	public static final Texture texture = new Texture(Util.glReadImage(Terrain.class.getResourceAsStream("/assets/terrain.bmp"))); // TODO initialize the texture
-	
+	public static final Texture texture_depth = new Texture(Util.glReadImage(Terrain.class.getResourceAsStream("/assets/terrainDepth.bmp"))); // TODO initialize the texture
+
+
 	static {
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
@@ -39,10 +41,11 @@ public class Terrain {
 	public void render() {
 		TerrainShader.shader.bind();
 		texture.bind(0);
+		texture_depth.bind(1);
 		GL30.glBindVertexArray(vao);
 		TerrainShader.shader.setAspectRatio(DefaultGLFW.width, DefaultGLFW.height, texture.getHeight(), texture.getWidth());
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
-		
+		texture_depth.unbind();
 	}
 
 	public Tank[] generateTanks(int side) {

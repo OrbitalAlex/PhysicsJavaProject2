@@ -5,15 +5,15 @@ import static oajava.util.Util.*;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opencl.CL10;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import oajava.physicsgame.cl.CLDoer;
-import oajava.physicsgame.cl.CLHost;
 import oajava.physicsgame.net.PacketNewTurn;
 import oajava.util.Util;
+import oajava.util.gl.Query;
 import oajava.util.gl.Texture;
 import oajava.util.gl.gui.GUI;
 import oajava.util.glfw.DefaultGLFW;
@@ -24,6 +24,8 @@ public class ScreenIO implements GameController {
 	public static Texture projectile_texture;
 	public static int DummyProjectileVAOIDontCareAbout;
 		
+	public static Query query;
+	
 	@Override
 	public void postOpenGLInit() {
 		GL11.glDisable(GL11.GL_DEPTH_TEST); // disable 3d stuff
@@ -60,16 +62,14 @@ public class ScreenIO implements GameController {
 		ioSetSyncingProgressf(sync_frame, 0.3f);
 		Tank.touch(); // load textures
 		
-		ioSetSyncingStatus(sync_frame, "Loading OpenCL Data...");
-		ioSetSyncingProgressf(sync_frame, 0.6f);
-		CLDoer.init();
-		
 		ioHideSyncingFrame(sync_frame);
 		ioDeleteSyncingFrame(sync_frame);
 		
 		PhysicsGame.loadNetworkIO();
 		
 		GLFW.glfwShowWindow(DefaultGLFW.window);
+		
+		query = new Query();
 		
 	}
 
@@ -86,13 +86,14 @@ public class ScreenIO implements GameController {
 
 	@Override
 	public void renderElements() {
-		CLDoer.fbo.setViewport();
-		CLHost.bind_gl(CLDoer.cl_img);
+//		CLDoer.fbo.setViewport();
 		
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(true);
 		PhysicsGame.terrain.render();
 //		renderProjectiles();
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(false);
 		for (Tank t : PhysicsGame.tanks) {
 			if (t != null) {
 				t.render();
@@ -100,6 +101,9 @@ public class ScreenIO implements GameController {
 		}
 		
 		if (PhysicsGame.angle_texture != null) PhysicsGame.angle_texture.free(); // i'm lazy
+		
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(true);
 		
 //		float texture_height = PhysicsGame.angle_texture.getHeight()/200f;
 //		float texture_width = PhysicsGame.angle_texture.getWidth()/200f;
@@ -113,29 +117,34 @@ public class ScreenIO implements GameController {
 		GUI.shader.setUniform(GUI.u_size, new Vector2f(PhysicsGame.angle_texture.getWidth()/600f,PhysicsGame.angle_texture.getHeight()/600f*DefaultGLFW.width*1f/DefaultGLFW.height));
 		GUI.drawQuad();
 		
-		CLDoer.fbo.resetViewport(CLDoer.texture.getWidth(), CLDoer.texture.getHeight());
+//		CLDoer.fbo.resetViewport(CLDoer.texture.getWidth(), CLDoer.texture.getHeight());
 		
-		GL30.glBindVertexArray(GUI.vao);
-		ImageShader.shader.bind();
-		CLDoer.texture.bind(0);
+//		GL30.glBindVertexArray(GUI.vao);
+//		ImageShader.shader.bind();
+//		CLDoer.texture.bind(0);
 		
-		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+//		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 		
-		Util.thrSleepMs(5);
+//		GL11.glFinish();
 		
-		CLHost.bind_cl(CLDoer.cl_img);
-		int count = CLDoer.checkSchool();
-
-		System.out.println("count: " + count);
+//		CLHost.bind_cl(CLDoer.cl_img);
+//		CL10.clFinish(CLHost.command_queue);
 		
-		if (count > 0) {
-			System.out.println("remove!");
-			try {
-				PhysicsGame.removeProjectile(PhysicsGame.projectiles.get(0));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+//		int count = CLDoer.checkSchool();
+		
+//		CLHost.bind_gl(CLDoer.cl_img);
+//		CL10.clFinish(CLHost.command_queue);
+		
+//		System.out.println("count: " + count);
+//		
+//		if (count > 0) {
+//			System.out.println("remove!");
+//			try {
+//				PhysicsGame.removeProjectile(PhysicsGame.projectiles.get(0));
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 		
 	}
 	
@@ -148,10 +157,17 @@ public class ScreenIO implements GameController {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
-			for (Projectile p : PhysicsGame.projectiles) {
+			for (Projectile p : PhysicsGame.projectiles.toArray(new Projectile[] {})) {
+				query.begin();
 				ProjectileShader.shader.setAngle(p.getAngle());
 				ProjectileShader.shader.setPosition(p.getPosition(PhysicsGame.time_seconds).mul(1f/PhysicsGame.ZOOM));
 				GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+				query.end();
+				GL11.glFinish();
+				System.out.println("passed: " + query.get());
+				if (query.get() < 4000 && PhysicsGame.time_seconds - p.initialTime >= 0.333f) {
+					PhysicsGame.removeProjectile(p);
+				}
 //				GL11.glVertex2f(0, 0); // call the shader
 			}
 		

@@ -30,7 +30,7 @@ public class PhysicsGame {
 	public static Tank[] tanks = new Tank[2];
 	
 	public static float time_seconds;
-	public static long time0;
+	public static long time0 = System.currentTimeMillis();
 	
 	public static Terrain terrain;
 	
@@ -53,7 +53,9 @@ public class PhysicsGame {
 		
 	}
 	
-	public static void main(String[] args) {			
+	public static void main(String[] args) {	
+		Util.ioOpenSystemThreadMonitors();
+		
 		DefaultGLFW.title = "Water Balloon Launching Game by Alexander B and Andrew M";
 		DefaultGLFW.fps = 60;
 		DefaultGLFW.game_controller = new ScreenIO();
@@ -100,6 +102,7 @@ public class PhysicsGame {
 
 	public static void removeProjectile(Projectile p) {
 		projectiles.remove(p);
+		Util.netSendPacket(socket, new PacketProjectileDestroyed(p.initialTime));
 		// send packet?
 	}
 	
