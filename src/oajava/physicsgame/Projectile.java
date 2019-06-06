@@ -52,14 +52,13 @@ public class Projectile implements Serializable {
 		if (position.distance(PhysicsGame.tanks[0].pos) <= 0.05f && PhysicsGame.side == Util.NET_CLIENT_SIDE)
 		{
 			PhysicsGame.removeProjectile(this);
-			//PhysicsGame.tanks[0].removeHeart();
-			//MAKE THE HEART CLASS
+			PhysicsGame.heart.removeHeartp1();
 		}
 		
 		if (position.distance(PhysicsGame.tanks[1].pos) <= 0.05f && PhysicsGame.side == Util.NET_SERVER_SIDE)
 		{
 			PhysicsGame.removeProjectile(this);
-			//PhysicsGame.tanks[1].removeHeart();
+			PhysicsGame.heart.removeheartp2();
 		}
 		
 		

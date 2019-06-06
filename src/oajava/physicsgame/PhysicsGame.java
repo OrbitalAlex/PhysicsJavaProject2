@@ -37,6 +37,8 @@ public class PhysicsGame {
 	public static int socket;
 	private static Object lock = new Object();
 
+	public static Heart heart = new Heart();
+	
 	public static int side;
 	public static int turn = Util.NET_SERVER_SIDE;
 	
