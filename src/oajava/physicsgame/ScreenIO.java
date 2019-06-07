@@ -119,8 +119,7 @@ public class ScreenIO implements GameController {
 //		float texture_width = PhysicsGame.angle_texture.getWidth()/200f;
 		
 		renderProjectiles();
-		
-		PhysicsGame.angle_texture = Texture.glTexture("Angle: " + Util.ioClampi(((int) ((360 + (PhysicsGame.tanks[0].side == PhysicsGame.side ? PhysicsGame.tanks[0] : PhysicsGame.tanks[1]).angle.angDegrees()) * 100)), 0, 36000) / 100f, PhysicsGame.font, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0, 0, 0, 0.25f));
+		PhysicsGame.angle_texture = Texture.glTexture("Angle: " + Util.ioClampi(((int) ((360 + (PhysicsGame.tanks[0].side == PhysicsGame.side ? PhysicsGame.tanks[0] : PhysicsGame.tanks[1]).angle.angDegrees()) * 100)) , 0, 36000) / 100f + "   Wind: " + Projectile.displayWindValue(), PhysicsGame.font, new Vector4f(1f, 1f, 1f, 1f), new Vector4f(0, 0, 0, 0.25f));
 		PhysicsGame.angle_texture.bind(0);
 		GUI.shader.bind();
 		GUI.shader.setUniform(GUI.u_pos, new Vector2f());
@@ -230,14 +229,14 @@ public class ScreenIO implements GameController {
 	@Override
 	public void mousePress(int button) {
 		System.out.println(PhysicsGame.turn + " " + PhysicsGame.side + " " + Util.NET_CLIENT_SIDE + " " + Util.NET_SERVER_SIDE);
-		if (PhysicsGame.turn == PhysicsGame.side) {
+		if (/*PhysicsGame.turn == PhysicsGame.side*/true == true) {
 			for (Tank t : PhysicsGame.tanks) {
 				if (t.side == PhysicsGame.side) {
 					t.launchProjectile();
 				}
 			}
-			PhysicsGame.turn = PhysicsGame.side == Util.NET_CLIENT_SIDE ? Util.NET_SERVER_SIDE : Util.NET_CLIENT_SIDE;
-			Util.netSendPacket(PhysicsGame.socket, new PacketNewTurn(PhysicsGame.turn));
+//			PhysicsGame.turn = PhysicsGame.side == Util.NET_CLIENT_SIDE ? Util.NET_SERVER_SIDE : Util.NET_CLIENT_SIDE;
+//			Util.netSendPacket(PhysicsGame.socket, new PacketNewTurn(PhysicsGame.turn));
 		}
 	}
 
